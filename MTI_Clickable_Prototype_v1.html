@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>MTI Prototype</title>
+<style>
+body{font-family:Tahoma,Arial;background:#f4f6fa;margin:0;color:#1a2340}
+header{background:#0b1f3a;color:#d4af37;padding:16px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:20px}
+nav button{background:#0b1f3a;color:#fff;border:1px solid #d4af37;margin-inline-start:8px;padding:8px 14px;border-radius:6px;cursor:pointer}
+nav button.active{background:#d4af37;color:#0b1f3a}
+main{padding:24px;max-width:1000px;margin:auto}
+.card{background:#fff;border:1px solid #e3e7ef;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+h2{margin-top:0;color:#0b1f3a}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #e3e7ef;padding:8px;text-align:right;font-size:14px}
+th{background:#eef2f8}
+.btn{background:#0b1f3a;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;margin-top:10px}
+.btn.gold{background:#d4af37;color:#0b1f3a}
+.screen{display:none}
+.screen.active{display:block}
+input,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:6px}
+.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px}
+.b-green{background:#e6f7ec;color:#1c7c3c}
+.b-yellow{background:#fff7e0;color:#8a6d00}
+.b-red{background:#fdeaea;color:#a02020}
+</style>
+</head>
+<body>
+<header><h1>MTI | منصة التجارة الدولية</h1><nav>
+<button onclick="show('login')" class="active">دخول</button>
+<button onclick="show('dash')">لوحة التحكم</button>
+<button onclick="show('listings')">العرض والطلب</button>
+<button onclick="show('deal')">غرفة الصفقة</button>
+</nav></header>
+<main>
+<section id="login" class="screen active">
+<div class="card" style="max-width:420px;margin:auto">
+<h2>تسجيل الدخول</h2>
+<input placeholder="البريد الإلكتروني"><input placeholder="كلمة المرور" type="password">
+<button class="btn" onclick="show('dash')">دخول</button>
+<p style="font-size:12px;color:#666">نموذج أولي للعرض — لا يرسل بيانات فعلية.</p>
+</div>
+</section>
+<section id="dash" class="screen">
+<div class="card"><h2>لوحة التحكم</h2>
+<p>ملخص سريع لحالة النشاط التجاري.</p>
+<table><tr><th>المؤشر</th><th>القيمة</th><th>الحالة</th></tr>
+<tr><td>طلبات نشطة</td><td>3</td><td><span class="badge b-yellow">قيد المتابعة</span></td></tr>
+<tr><td>عروض مستلمة</td><td>5</td><td><span class="badge b-green">جديدة</span></td></tr>
+<tr><td>صفقات نشطة</td><td>2</td><td><span class="badge b-green">جارية</span></td></tr>
+<tr><td>تنبيهات امتثال</td><td>1</td><td><span class="badge b-red">يتطلب مراجعة</span></td></tr></table>
+</div>
+<div class="card"><h3>إجراءات سريعة</h3>
+<button class="btn gold" onclick="show('listings')">إضافة عرض</button>
+<button class="btn" onclick="show('listings')">إضافة طلب شراء</button>
+</div>
+</section>
+<section id="listings" class="screen">
+<div class="card"><h2>العروض وطلبات الشراء</h2>
+<table><tr><th>النوع</th><th>العنوان</th><th>البلد</th><th>السعر</th><th>الحالة</th></tr>
+<tr><td>عرض</td><td>ملابس قطنية للتصدير</td><td>مصر</td><td>USD 5.5/قطعة</td><td><span class="badge b-green">منشور</span></td></tr>
+<tr><td>طلب</td><td>شراء زيوت غذائية</td><td>الخليج</td><td>حسب الكمية</td><td><span class="badge b-yellow">قيد المطابقة</span></td></tr></table>
+<button class="btn" onclick="show('deal')">فتح غرفة صفقة تجريبية</button>
+</div>
+</section>
+<section id="deal" class="screen">
+<div class="card"><h2>غرفة الصفقة</h2>
+<p><b>الصفقة:</b> تصدير ملابس قطنية — مصر إلى الخليج</p>
+<table><tr><th>المرحلة</th><th>المسؤول</th><th>الحالة</th></tr>
+<tr><td>اتفاق مبدئي</td><td>المستورد والمورد</td><td><span class="badge b-green">مكتمل</span></td></tr>
+<tr><td>رفع المستندات</td><td>المصدّر</td><td><span class="badge b-yellow">قيد التنفيذ</span></td></tr>
+<tr><td>تمويل Escrow</td><td>مزود مرخص</td><td><span class="badge b-yellow">انتظار</span></td></tr>
+<tr><td>الشحن</td><td>شركة الشحن</td><td><span class="badge b-red">لم يبدأ</span></td></tr></table>
+<p style="font-size:12px;color:#666">تنبيه: MTI لا تحتفظ بأموال العملاء؛ الإفراج يتم عبر مزود Escrow مرخص فقط.</p>
+</div>
+</section>
+</main>
+<script>
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');}
+</script>
+</body>
+</html>

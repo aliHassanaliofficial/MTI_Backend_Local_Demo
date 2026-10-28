@@ -1,0 +1,583 @@
+{
+  "meta": {
+    "project": "MTI",
+    "artifact": "MTI_Engineering_Specification",
+    "version": "5.0-deliverable",
+    "created": "2026-10-26",
+    "owner": "Farag Mohamed Ali Hussein",
+    "source": "MTI-Structured-Data-Source-Final-v4.2-production.json",
+    "protocol": "MTI-ARCH-001",
+    "purpose": "Internal engineering reference to build and evaluate the platform"
+  },
+  "architecture": {
+    "style": "Modular Monolith -> services as needed",
+    "frontend": "Next.js + TypeScript + Tailwind",
+    "backend": "FastAPI (Python 3.12)",
+    "database": "PostgreSQL 16",
+    "cache": "Redis",
+    "search": "Meilisearch or Elasticsearch",
+    "storage": "S3-compatible object storage",
+    "hosting": "Managed cloud, EUMENA region option",
+    "cicd": "GitHub Actions",
+    "monitoring": "Sentry + Prometheus + Grafana"
+  },
+  "database_schema": {
+    "users": {
+      "columns": {
+        "user_id": "UUID PK",
+        "username": "VARCHAR UNIQUE",
+        "role": "ENUM",
+        "full_name": "VARCHAR",
+        "email": "VARCHAR UNIQUE",
+        "phone": "VARCHAR",
+        "kyc_status": "ENUM",
+        "training_status": "ENUM",
+        "permissions": "JSONB",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ",
+        "deleted_at": "TIMESTAMPTZ"
+      }
+    },
+    "organizations": {
+      "columns": {
+        "org_id": "UUID PK",
+        "legal_name": "VARCHAR",
+        "country": "CHAR(2)",
+        "kyb_status": "ENUM",
+        "beneficial_owners": "JSONB",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ"
+      }
+    },
+    "listings": {
+      "columns": {
+        "listing_id": "UUID PK",
+        "org_id": "UUID FK",
+        "type": "ENUM",
+        "title": "VARCHAR",
+        "description": "TEXT",
+        "category": "VARCHAR",
+        "country_of_origin": "CHAR(2)",
+        "price": "NUMERIC(20,4)",
+        "currency": "CHAR(3)",
+        "moq": "INT",
+        "lead_time_days": "INT",
+        "status": "ENUM",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "trade_requests": {
+      "columns": {
+        "request_id": "UUID PK",
+        "buyer_user_id": "UUID FK",
+        "title": "VARCHAR",
+        "product_category": "VARCHAR",
+        "quantity": "INT",
+        "budget": "NUMERIC(20,4)",
+        "currency": "CHAR(3)",
+        "destination_country": "CHAR(2)",
+        "deadline": "DATE",
+        "status": "ENUM",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "offers": {
+      "columns": {
+        "offer_id": "UUID PK",
+        "request_id": "UUID FK",
+        "seller_org_id": "UUID FK",
+        "price": "NUMERIC(20,4)",
+        "currency": "CHAR(3)",
+        "terms": "TEXT",
+        "status": "ENUM",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "deals": {
+      "columns": {
+        "deal_id": "UUID PK",
+        "buyer_org_id": "UUID FK",
+        "seller_org_id": "UUID FK",
+        "listing_id": "UUID FK",
+        "agreed_amount": "NUMERIC(20,4)",
+        "currency": "CHAR(3)",
+        "incoterm": "VARCHAR",
+        "payment_method": "VARCHAR",
+        "escrow_provider_id": "UUID FK",
+        "status": "ENUM",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ"
+      }
+    },
+    "contracts": {
+      "columns": {
+        "contract_id": "VARCHAR PK",
+        "deal_id": "UUID FK",
+        "type": "ENUM",
+        "parties": "JSONB",
+        "non_circumvention_months": "INT",
+        "status": "ENUM",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "documents": {
+      "columns": {
+        "doc_id": "UUID PK",
+        "deal_id": "UUID FK",
+        "uploaded_by": "UUID FK",
+        "type": "ENUM",
+        "file_url": "VARCHAR",
+        "checksum": "CHAR(64)",
+        "version": "INT",
+        "visibility": "ENUM",
+        "uploaded_at": "TIMESTAMPTZ"
+      }
+    },
+    "messages": {
+      "columns": {
+        "message_id": "UUID PK",
+        "thread_id": "UUID FK",
+        "sender_id": "UUID FK",
+        "body": "TEXT",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "commissions": {
+      "columns": {
+        "commission_id": "UUID PK",
+        "deal_id": "UUID FK",
+        "rate": "NUMERIC(5,4)",
+        "basis": "ENUM",
+        "status": "ENUM",
+        "settlement_statement_id": "UUID FK",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "escrow_records": {
+      "columns": {
+        "escrow_id": "UUID PK",
+        "deal_id": "UUID FK",
+        "provider_id": "UUID FK",
+        "external_reference": "VARCHAR",
+        "currency": "CHAR(3)",
+        "amount": "NUMERIC(20,4)",
+        "status": "ENUM",
+        "funded_at": "TIMESTAMPTZ",
+        "released_at": "TIMESTAMPTZ"
+      }
+    },
+    "shipments": {
+      "columns": {
+        "shipment_id": "UUID PK",
+        "deal_id": "UUID FK",
+        "provider_org_id": "UUID FK",
+        "tracking_number": "VARCHAR",
+        "origin": "VARCHAR",
+        "destination": "VARCHAR",
+        "incoterm": "VARCHAR",
+        "status": "ENUM",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "disputes": {
+      "columns": {
+        "dispute_id": "UUID PK",
+        "deal_id": "UUID FK",
+        "status": "ENUM",
+        "evidence": "JSONB",
+        "resolution": "TEXT",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "providers": {
+      "columns": {
+        "provider_id": "UUID PK",
+        "legal_name": "VARCHAR",
+        "service_type": "VARCHAR",
+        "accreditation_body": "VARCHAR",
+        "standard": "VARCHAR",
+        "valid_from": "DATE",
+        "valid_until": "DATE",
+        "referral_status": "ENUM",
+        "last_verified_at": "TIMESTAMPTZ"
+      }
+    },
+    "audit_events": {
+      "columns": {
+        "event_id": "UUID PK",
+        "actor_id": "UUID FK",
+        "action": "VARCHAR",
+        "entity": "VARCHAR",
+        "entity_id": "UUID",
+        "timestamp": "TIMESTAMPTZ",
+        "metadata": "JSONB"
+      }
+    },
+    "consent_records": {
+      "columns": {
+        "consent_id": "UUID PK",
+        "user_id": "UUID FK",
+        "type": "ENUM",
+        "granted_at": "TIMESTAMPTZ",
+        "revoked_at": "TIMESTAMPTZ"
+      }
+    }
+  },
+  "api_contracts": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/register",
+      "auth": "public",
+      "request": {
+        "email": "string",
+        "password": "string"
+      },
+      "response": {
+        "user_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "409"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "auth": "public",
+      "request": {
+        "email": "string",
+        "password": "string"
+      },
+      "response": {
+        "access_token": "jwt",
+        "refresh_token": "jwt"
+      },
+      "errors": [
+        "401"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/verify-phone",
+      "auth": "bearer",
+      "request": {
+        "otp": "string"
+      },
+      "response": {
+        "verified": true
+      },
+      "errors": [
+        "400",
+        "401"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/companies",
+      "auth": "bearer",
+      "request": {
+        "legal_name": "string",
+        "country": "string"
+      },
+      "response": {
+        "org_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/companies/{id}/documents",
+      "auth": "bearer",
+      "request": {
+        "file": "multipart"
+      },
+      "response": {
+        "doc_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/listings",
+      "auth": "public",
+      "request": {
+        "query": "string"
+      },
+      "response": {
+        "items": "array"
+      },
+      "errors": [
+        "400"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/listings",
+      "auth": "bearer",
+      "request": {
+        "title": "string",
+        "price": "number"
+      },
+      "response": {
+        "listing_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trade-requests",
+      "auth": "bearer",
+      "request": {
+        "title": "string",
+        "budget": "number"
+      },
+      "response": {
+        "request_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trade-requests/{id}/offers",
+      "auth": "bearer",
+      "request": {
+        "price": "number",
+        "terms": "string"
+      },
+      "response": {
+        "offer_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/deals",
+      "auth": "bearer",
+      "request": {
+        "listing_id": "uuid",
+        "offer_id": "uuid"
+      },
+      "response": {
+        "deal_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/deals/{id}",
+      "auth": "bearer",
+      "response": {
+        "deal": "object"
+      },
+      "errors": [
+        "403",
+        "404"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/deals/{id}/milestones",
+      "auth": "bearer",
+      "request": {
+        "name": "string",
+        "due_date": "date"
+      },
+      "response": {
+        "milestone_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/deals/{id}/documents",
+      "auth": "bearer",
+      "request": {
+        "file": "multipart"
+      },
+      "response": {
+        "doc_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/deals/{id}/messages",
+      "auth": "bearer",
+      "request": {
+        "body": "string"
+      },
+      "response": {
+        "message_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/escrow-links",
+      "auth": "bearer",
+      "request": {
+        "deal_id": "uuid",
+        "provider_id": "uuid"
+      },
+      "response": {
+        "escrow_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/shipments",
+      "auth": "bearer",
+      "request": {
+        "deal_id": "uuid"
+      },
+      "response": {
+        "shipment_id": "uuid"
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/shipments/{id}/status",
+      "auth": "bearer",
+      "request": {
+        "status": "string"
+      },
+      "response": {
+        "updated": true
+      },
+      "errors": [
+        "400",
+        "403"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/webhooks/escrow",
+      "auth": "webhook_signature",
+      "request": {
+        "event": "object"
+      },
+      "response": {
+        "received": true
+      },
+      "errors": [
+        "400",
+        "401"
+      ]
+    }
+  ],
+  "security_controls": [
+    {
+      "id": "SEC-001",
+      "control": "TLS 1.2+ everywhere",
+      "implementation": "HSTS + cert management"
+    },
+    {
+      "id": "SEC-002",
+      "control": "Encryption at rest",
+      "implementation": "KMS-managed keys"
+    },
+    {
+      "id": "SEC-003",
+      "control": "MFA for admin",
+      "implementation": "TOTP + recovery codes"
+    },
+    {
+      "id": "SEC-004",
+      "control": "RBAC least privilege",
+      "implementation": "role-based policies"
+    },
+    {
+      "id": "SEC-005",
+      "control": "Immutable audit log",
+      "implementation": "append-only table + hash chain"
+    },
+    {
+      "id": "SEC-006",
+      "control": "Rate limiting",
+      "implementation": "Redis-based limits"
+    },
+    {
+      "id": "SEC-007",
+      "control": "Webhook signature verification",
+      "implementation": "HMAC + timestamp"
+    },
+    {
+      "id": "SEC-008",
+      "control": "No card data storage",
+      "implementation": "tokenization via provider"
+    },
+    {
+      "id": "SEC-009",
+      "control": "Encrypted backups",
+      "implementation": "daily + quarterly restore test"
+    },
+    {
+      "id": "SEC-010",
+      "control": "WORM archive",
+      "implementation": "object lock + offline copy"
+    }
+  ],
+  "deployment_plan": {
+    "environments": [
+      "dev",
+      "staging",
+      "prod"
+    ],
+    "pipeline": [
+      "lint",
+      "test",
+      "build",
+      "scan",
+      "deploy"
+    ],
+    "rollback": "blue-green or canary",
+    "backups": "daily automated",
+    "dr": "RTO 4h, RPO 15min"
+  },
+  "acceptance_criteria": [
+    "all endpoints authenticated/authorized",
+    "all sensitive actions audited",
+    "no card data stored",
+    "escrow via licensed provider only",
+    "release gates passed before go-live"
+  ],
+  "traceability": {
+    "source": "v4.2 production governance",
+    "rule": "every requirement traceable to control or business rule"
+  }
+}
